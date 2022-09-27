@@ -1,0 +1,13 @@
+numpy
+
+pandas
+
+matplotlib
+
+sklearn
+
+scipy
+
+simpy
+
+pyDOE
