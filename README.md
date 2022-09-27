@@ -1,0 +1,2 @@
+# Tetris
+Tetris, a model predictive control (MPC)-based container scheduling strategy to judiciously make migration decisions for long-running containerized workloads. Tetris can achieve the long-term optimization of container scheduling to circumvent invalid migrations as many as possible, by jointly optimizing the cluster load balancing and container migration cost over a certain sliding time window.
