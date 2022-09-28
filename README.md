@@ -89,11 +89,20 @@ After you run the script, you will get the results in ```Tetris/Simulator_Alibab
 ### Send ***requests***
 Run the commands to send requests to Apache Tomcat server:
 ```
+# Tomcat
 $ sudo apt-get update
 $ sudo apt-get install apache2-utils
 
 $ cd Tetris/Prototype-K8s
-$ sh request.sh
+$ sh request-tomcat.sh
+
+# Redis
+$ cd Tetris/Prototype-K8s
+$ sh request-redis.sh
+
+# Resnet
+$ cd Tetris/Prototype-K8s
+$ sh request-resnet.sh
 ```
 *Remember to replace the IP address in ```request.sh``` with the IP address of the master in your own K8s cluster.
 
