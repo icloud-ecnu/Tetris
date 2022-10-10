@@ -34,9 +34,10 @@ $$
 
 Based on our discrete-time dynamic model above, we proceed to formulate the long-term optimization problem of container scheduling based on MPC. At each time 
 $t$, MPC leverages the predicted container resource consumption (i.e., 
-$cpu^{k}(t)$, 
-$mem^{k}(t)$) to make scheduling decisions (i.e., judiciously deciding 
-$x_{i}^{k}(t)$) to minimize the cost function 
+$cpu^{k}(t)$, $mem^{k}(t)$
+) to make scheduling decisions (i.e., judiciously deciding 
+$x_{i}^{k}(t)$
+) to minimize the cost function 
 $C(t)$ over the time window. We assume the scheduling starts at time 
 $t_{1}$, and our optimization problem can be formulated as
 
