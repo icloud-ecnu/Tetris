@@ -13,19 +13,42 @@ As *Tetris* aiming to jointly optimize the load imbalance degree and migration c
 
 By using the variance of resource consumption of all cluster servers to represent the load imbalance degree of the cluste, we can modele the cluster load imbalance degree at each timeslot as
 
-<div align=center><img width="360" height="80" src="images/load_imbalance.png"/></div>
+$$
+\begin{aligned}
+C_b(t) &=\frac{2}{|\mathcal{M}|-1} \sum_{i \in \mathcal{M}} \sum_{k, l \in \mathcal{N}} x_i^k(t) x_i^l(t) \cdot\left(c p u^k(t) c p u^l(t)\right.\\
+&\left.+\beta \cdot m e m^k(t) m e m^l(t)\right)+C_1
+\end{aligned}
+$$
 
 To denote the migration cost by the sum of unit cost of the migrated containers, the migration cost is formulated as
 
-<div align=center><img width="390" height="45" src="images/migration_cost.png"/></div>
+$$
+C_m(t)=C_2-\sum_{k \in \mathcal{N}} \sum_{i \in \mathcal{M}}\left(\delta+\gamma \cdot m e m^k(t)\right) \cdot x_i^k(t) x_i^k(t-1)
+$$
 
 To sum up, we further formulate the cost function $C(t)$ of container scheduling at each timeslot. Based on the formulations above, we further combine the cluster load imbalance degree and the migration cost as below,
 
-<div align=center><img width="180" height="28" src="images/discrete_time.png"/></div>
+$$
+C(t)=C_b(t)+\alpha \cdot C_m(t)
+$$
 
-Based on our discrete-time dynamic model above, we proceed to formulate the long-term optimization problem of container scheduling based on MPC. At each time $t$, MPC leverages the predicted container resource consumption (i.e., $cpu^{k}(t)$, $mem^{k}(t)$) to make scheduling decisions (i.e., judiciously deciding $x_{i}^{k}(t)$) to minimize the cost function $C(t)$ over the time window. We assume the scheduling starts at time $t_{1}$, and our optimization problem can be formulated as
+Based on our discrete-time dynamic model above, we proceed to formulate the long-term optimization problem of container scheduling based on MPC. At each time 
+$t$, MPC leverages the predicted container resource consumption (i.e., 
+$cpu^{k}(t)$, $mem^{k}(t)$
+) to make scheduling decisions (i.e., judiciously deciding 
+$x_{i}^{k}(t)$
+) to minimize the cost function 
+$C(t)$ over the time window. We assume the scheduling starts at time 
+$t_{1}$, and our optimization problem can be formulated as
 
-<div align=center><img width="450" height="185" src="images/optimization_problem.png"/></div>
+$$
+\begin{array}{ll}
+\min _{x_i^k(t)} & \sum_{t=t_1}^{t_W} C(t) \\
+\text { s.t. } & \sum_{i \in \mathcal{M}} x_i^k(t)=1, \quad \forall k \in \mathcal{N}, t \in\left[t_1, t_W\right] \\
+& \sum_{k \in \mathcal{N}} x_i^k(t) \cdot c p u^k(t) \leq C P U_i^{c a p}(t), \quad \forall i \in \mathcal{M}, t \in\left[t_1, t_W\right] \\
+& \sum_{k \in \mathcal{N}} x_i^k(t) \cdot \operatorname{mem}^k(t) \leq M E M_i^{c a p}(t) . \quad \forall i \in \mathcal{M}, t \in\left[t_1, t_W\right]
+\end{array}
+$$
 
 
 ## Dependencies
