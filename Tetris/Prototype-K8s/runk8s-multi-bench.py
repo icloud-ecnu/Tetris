@@ -29,7 +29,7 @@ class ScheduleSys:
     
     def schedule(self):
         t = 0
-        end = 3 if self.algorithm == "sxy" else 5
+        end = 3 if self.algorithm == "tetris" else 5
         # os.system("bash ./request.sh")
         flag =True # self.checkNodeAndPodCmd()
         test = True
@@ -42,7 +42,7 @@ class ScheduleSys:
             #         for podname in self.cpudict.keys():
             #             self.getCpuMemNow(podname,t)
             
-            # if self.algoName == "sxy" and test :
+            # if self.algoName == "tetris" and test :
             #     for i in range(9):
             #         print("read time at",i)
             #         self.getPodNodNum(t,False)
@@ -56,7 +56,7 @@ class ScheduleSys:
             # print(f"pods is {self.pods}\n nodes= \n{self.nodes}")
             assert len(self.pods) > 0 and len(self.nodes) ==10
             if t==0:
-                Filename = './metric/sandpiper.csv' if algo == "sandpiper" else './metric/sxy.csv'
+                Filename = './metric/sandpiper.csv' if algo == "sandpiper" else './metric/tetris.csv'
                 with open( Filename,'w') as f:
                     writer = csv.writer(f)
                     writer.writerow(["value","eval_bal","eval_mig"])
@@ -64,12 +64,12 @@ class ScheduleSys:
 
             if self.algoName == "sandpiper":
                 newnodes ,eval_mig= self.algorithm(self.nodes,self.cpudict,self.memdict,self.algoName)
-            elif self.algoName == "sxy":
+            elif self.algoName == "tetris":
                 newnodes,eval_mig = self.algorithm(self.nodes,self.cpudict,self.memdict,self.algoName,self.cluster,t+10)
             elif self.algoName == "drl":
                 pass
             else:
-                print("choose the scheduling algorithm --algo=sandpiper or --algo=sxy\n done")
+                print("choose the scheduling algorithm --algo=sandpiper or --algo=tetris\n done")
                 exit()
             
             # whether need migrate
@@ -143,16 +143,16 @@ class ScheduleSys:
         
         p =1
         
-        if self.algoName == "sxy":
+        if self.algoName == "tetris":
             print(self.podnameToidx,self.nodenameToidx)
             # assert 1==0
         
         for node_name,migrated_pod_list in nodes.items():
-            if self.algoName == "sxy":
+            if self.algoName == "tetris":
                 cnode = self.clusternodes[self.nodenameToidx[node_name]]
             
             for pod_name in migrated_pod_list:
-                if self.algoName == "sxy":
+                if self.algoName == "tetris":
                     container = self.clusetrpods[self.podnameToidx[pod_name]]
                     lastnode = self.clusternodes[container.mac_id]
                     lastnode.pop(container.id)
@@ -237,7 +237,7 @@ class ScheduleSys:
             print("finish in pod and node")
         # done
         
-        if t == 0 and self.algoName == "sxy":
+        if t == 0 and self.algoName == "tetris":
             from sxyAlgo.cluster import Cluster
             self.cluster = Cluster()
             cluster = self.cluster
@@ -250,7 +250,7 @@ class ScheduleSys:
             # print(podname,v)
             cpuperc,memperc = v
             
-            if t == 0 and self.algoName == "sxy":
+            if t == 0 and self.algoName == "tetris":
                 self.cpudict[podname] = [1.65, 1.3, 1.45, 0.95, 1.5, 1.8, 1.6, 1.55, 1.25, 1.65]
                 self.memdict[podname] = [2.24609375, 2.24609375, 2.24609375, 2.24609375, 2.24609375, 2.24609375,\
                                          2.24609375, 2.24609375, 2.24609375, 2.24609375]
@@ -270,7 +270,7 @@ class ScheduleSys:
         nodes = self.nodes={}
         # nodeid = 1
         
-        if self.algoName == "sxy":
+        if self.algoName == "tetris":
             cluster = self.cluster
         if flag:
             print("container len",len(self.cpudict),self.cpudict.keys())
@@ -291,7 +291,7 @@ class ScheduleSys:
             cpu = self.cpudict[podname][-1]
             mem = self.memdict[podname][-1]
             
-            if  self.algoName == "sxy" :
+            if  self.algoName == "tetris" :
                 node_id = int(nodename[8:])-1
                 if  t==0:
                     if node_id not in cluster.nodes:
@@ -351,8 +351,8 @@ class ScheduleSys:
             nodes[nodename].add(podname)
             
 
-        # test sxy algo
-        if self.algoName == "sxy":
+        # test tetris algo
+        if self.algoName == "tetris":
             print("test nodes and containers")
             for k,node in cluster.nodes.items():
                 containers = node.containers
@@ -363,7 +363,7 @@ class ScheduleSys:
         self.nodeNum = len(nodes)
             # print("cluster container = {0}".format(len(cluster.containers.keys())))
         
-        if self.algoName == "sxy":
+        if self.algoName == "tetris":
             print("len of containers = {0}".format(len(cluster.containers)))
             print("len of nodes = {0}".format(len(cluster.nodes)))
             print("container = {0} node = {1}".format(cluster.containers.keys(),cluster.nodes.keys()))

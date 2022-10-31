@@ -132,7 +132,7 @@ $ sh request-resnet.sh
 ### Run the ***prototype***
 ```
 $ cd Tetris/Prototype-K8s
-$ nohup python3 -u ./runk8s.py --algo=sxy > ./log/runk8s_sxy.log &
+$ nohup python3 -u ./runk8s.py --algo=tetris > ./log/runk8s_tetris.log &
 ```
 
 After you run the script, you will get the log in ```Tetris/Prototype-K8s/log/``` which is a *.txt* file, and the results in ```Tetris/Prototype-K8s/metric/```, which is a *.csv* file. 
