@@ -15,7 +15,7 @@ class Algorithm(ABC):
         pass
 
 
-class Algorithm_sxy(Algorithm):
+class Algorithm_tetris(Algorithm):
     def __call__(self, cluster: Cluster, now):
 
         self.cluster = cluster

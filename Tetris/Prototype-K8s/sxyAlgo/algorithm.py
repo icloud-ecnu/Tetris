@@ -2,7 +2,7 @@
 import numpy as np
 from sandpiper import Sandpiper_algo
 from abc import ABC, abstractmethod
-from sxyAlgo.Algorithm_sxy import Algorithm_sxy
+from sxyAlgo.Algorithm_tetris import Algorithm_tetris
 from utl import CostOfLoadBalance, CostOfMigration
 import csv
 
@@ -15,7 +15,7 @@ class Algorithm(ABC):
 
 class Scheduler():
     def __init__(self) -> None:
-        self.sxy_algo = Algorithm_sxy()
+        self.tetris_algo = Algorithm_tetris()
         self.Filename = None
         pass
 
@@ -38,11 +38,11 @@ class Scheduler():
                 self.cpu_t0, self.mem_t0, placement, b=0.0025)
             eval_mig = CostOfMigration(self.x_t0, placement, self.mem_t0)
             value = eval_bal+(podnum-1)*eval_mig*0.004
-        elif algo == "sxy":
+        elif algo == "tetris":
 
-            print("sxy")
-            self.Filename = './metric/sxy.csv'
-            value, eval_bal, eval_mig = self.sxy_algo(cluster, t)
+            print("tetris")
+            self.Filename = './metric/tetris.csv'
+            value, eval_bal, eval_mig = self.tetris_algo(cluster, t)
         elif algo == "drl":
             self.Filename = './metric/drl.csv'
 
@@ -50,11 +50,11 @@ class Scheduler():
         with open(self.Filename, 'a') as f:
             writer = csv.writer(f)
             writer.writerow([value, eval_bal, eval_mig])
-        if algo == "sxy":
-            return self.sxyDict(cluster), eval_mig
+        if algo == "tetris":
+            return self.tetrisDict(cluster), eval_mig
         return self.MatrixToDict(placement, nodenum), eval_mig
 
-    def sxyDict(self, cluster):
+    def tetrisDict(self, cluster):
         nodes = cluster.nodes
         newnodes = {}
         nodename_prefix = "k8s-node"
