@@ -1,7 +1,7 @@
 
 
 import numpy as np
-from sxyAlgo.cluster import Cluster
+from tetrisAlgo.cluster import Cluster
 
 from time import time
 from pyDOE import lhs
