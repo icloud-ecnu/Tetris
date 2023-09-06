@@ -147,4 +147,4 @@ After the program runs, the information and running results of container migrati
 
 
 ## Publication
-Xiyue Shen, Fei Xu, Yifan Liu, Tao Song, Shuohao Lin, Li Chen, Fen Xiao, "[*Tetris*: Scheduling Long-Running Workloads for Load Balancing in Shared Containerized Clusters](https://github.com/icloud-ecnu/Tetris/raw/main/pdf/main.pdf)," submitted to IEEE Transactions on Service Computing, 2023.
+Fei Xu, Xiyue Shen, Shuohao Lin, Li Chen, Fen Xiao, Zhi Zhou, and Fangming Liu. "[*Tetris*: Scheduling Long-Running Workloads for Load Balancing in Shared Containerized Clusters](https://github.com/icloud-ecnu/Tetris/raw/main/pdf/main.pdf)," submitted to IEEE Transactions on Service Computing, 2023.
