@@ -43,7 +43,7 @@ $t_{1}$, and our optimization problem can be formulated as
 
 $$
 \begin{array}{ll}
-\min_{x_{i}^{k}(t)} & \sum\limits{t=t_{1}}^{t_{W}} C(t) \\
+\min{x_{i}^{k}(t)} & \sum{t=t_{1}}^{t_{W}} C(t) \\
 \text {s.t.} & \sum_{i \in \mathcal{M}} x_{i}^{k}(t)=1, \quad \forall k \in \mathcal{N} \\    
 & \sum_{k \in \mathcal{N}} x_{i}^{k}(t) \cdot cpu^{k}(t) \leq CPU_{i}^{cap}(t), \quad \forall i \in \mathcal{M} \\   
 & \sum_{k \in \mathcal{N}} x_{i}^{k}(t) \cdot mem^{k}(t) \leq MEM_{i}^{cap}(t), \quad \forall i \in \mathcal{M}
