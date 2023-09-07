@@ -3,15 +3,15 @@
 
 
 ## Prototype of *Tetris*
-*Tetris* comprises three pieces of modules including a container resource predictor, a MPC-based container scheduler and a container migration module of K8s. After users submit workload requests to the containerized cluster, *Tetris* first leverages the predictor to estimate the resource consumption of containers over a given time window $W$, which is input to the scheduler for calculating the scheduling cost of containers. By jointly optimizing the cluster load balancing degree and container migration cost, the scheduler further decides the appropriate migration plans during the period of time window $W$. Finally, the container migration module of K8s performs the appropriate migration decisions for the first timeslot in the containerized cluster, while discarding the migration decisions for the remaining timeslots. In particular, such a migration module can convert container scheduling decisions into a series of K8s pod operations (i.e., pod deletion and creation commands executed on migration source and destination servers).
+*Tetris* comprises three pieces of modules including a container resource predictor, an MPC-based container scheduler, and a container migration module of K8s. After users submit workload requests to the containerized cluster, *Tetris* first leverages the predictor to estimate the resource consumption of containers over a given time window $W$, which is input to the scheduler for calculating the scheduling cost of containers. By jointly optimizing the cluster load balancing degree and container migration cost, the scheduler further decides the appropriate migration plans during the period of time window $W$. Finally, the container migration module of K8s performs the appropriate migration decisions for the first timeslot in the containerized cluster, while discarding the migration decisions for the remaining timeslots. In particular, such a migration module can convert container scheduling decisions into a series of K8s pod operations (i.e., pod deletion and creation commands executed on migration source and destination servers).
 
 ![](images/prototype.png)
 
 
 ## Model the Workload Scheduling Optimization Problem
-As *Tetris* aiming to jointly optimize the load imbalance degree and migration cost, we first build a discrete-time dynamic model to capture the load imbalance degree of clusters and migration cost of containers and next formulate a container scheduling optimization problem based on the dynamic model.
+As *Tetris* aims to jointly optimize the load imbalance degree and migration cost, we first build a discrete-time dynamic model to capture the load imbalance degree of clusters and migration cost of containers and next formulate a container scheduling optimization problem based on the dynamic model.
 
-By using the variance of resource consumption of all cluster servers to represent the load imbalance degree of the cluste, we can modele the cluster load imbalance degree at each timeslot as
+By using the variance of resource consumption of all cluster servers to represent the load imbalance degree of the cluster, we can model the cluster load imbalance degree at each timeslot as
 
 $$
 \begin{aligned}
@@ -20,7 +20,7 @@ C_b(t) &=\frac{2}{|\mathcal{M}|-1} \sum_{i \in \mathcal{M}} \sum_{k, l \in \math
 \end{aligned}
 $$
 
-To denote the migration cost by the sum of unit cost of the migrated containers, the migration cost is formulated as
+To denote the migration cost by the sum of the unit cost of migrated containers, the migration cost is formulated as
 
 $$
 C_m(t)=C_2-\sum_{k \in \mathcal{N}} \sum_{i \in \mathcal{M}}\left(\delta+\gamma \cdot m e m^k(t)\right) \cdot x_i^k(t) x_i^k(t-1)
@@ -42,12 +42,12 @@ $C(t)$ over the time window. We assume the scheduling starts at time
 $t_{1}$, and our optimization problem can be formulated as
 
 $$
-\begin{array}{ll}
-\min{x_{i}^{k}(t)} & \sum{t=t_{1}}^{t_{W}} C(t) \\
-\text {s.t.} & \sum_{i \in \mathcal{M}} x_{i}^{k}(t)=1, \quad \forall k \in \mathcal{N} \\    
-& \sum_{k \in \mathcal{N}} x_{i}^{k}(t) \cdot cpu^{k}(t) \leq CPU_{i}^{cap}(t), \quad \forall i \in \mathcal{M} \\   
-& \sum_{k \in \mathcal{N}} x_{i}^{k}(t) \cdot mem^{k}(t) \leq MEM_{i}^{cap}(t), \quad \forall i \in \mathcal{M}
-\end{array}
+\begin{aligned}
+\min_{x_{i}^{k}(t)} & \quad \sum_{t=t_{1}}^{t_{W}} C(t) \\
+\text {s.t.} & \quad \sum_{i \in \mathcal{M}} x_{i}^{k}(t)=1, \quad \forall k \in \mathcal{N} \\    
+& \quad \sum_{k \in \mathcal{N}} x_{i}^{k}(t) \cdot cpu^{k}(t) \leq CPU_{i}^{cap}(t), \quad \forall i \in \mathcal{M} \\   
+& \quad \sum_{k \in \mathcal{N}} x_{i}^{k}(t) \cdot mem^{k}(t) \leq MEM_{i}^{cap}(t), \quad \forall i \in \mathcal{M}
+\end{aligned}
 $$
 
 
