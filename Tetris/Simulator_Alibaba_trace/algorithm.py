@@ -16,7 +16,7 @@ class Algorithm_tetris(Algorithm):
     def __call__(self, cluster: Cluster, now, motivationFile):
         self.motivationFile = motivationFile
         self.cluster = cluster
-        self.params = {"w": 3, "z": range(20), "k": 5, "u": 0.8, "v": 0.4, "a": 0.004,
+        self.params = {"w": 6, "z": range(20), "k": 5, "u": 0.8, "v": 0.4, "a": 0.004,
                        "b": 0.0025, "y": 0.25, "N": len(cluster.instances),
                        "M": len(cluster.machines)}
         
@@ -32,6 +32,7 @@ class Algorithm_tetris(Algorithm):
     # @profile
     def schedule(self, now):
         start = time()
+        print(f"Starting schedule at time {now}")
         params = self.params
         min_z, eval_bal, eval_mig, value = self.SchedulePolicy(params["z"], params["k"], params["w"], params["v"],
                                                                params["M"], params["a"], params["b"], params["y"], now)
@@ -43,7 +44,8 @@ class Algorithm_tetris(Algorithm):
         else:
             print("at ", now, "没有最优，总共花费了", after -
                   start, eval_bal, eval_mig, value)
-        
+        elapsed = time() - start
+        print(f"Finished schedule at time {now}, took {elapsed:.2f} seconds")
         return value, eval_bal, eval_mig
 
     
@@ -63,8 +65,9 @@ class Algorithm_tetris(Algorithm):
 
         candidate_copy = {}
         min_z, balf, migf, valuef = -1, balfirst, 0, balfirst
-        
+        print(f'cost_min is {cost_min}')
         for z in Z:
+            # print(z)
             cost = 0
             findOV = (over, under)
             bal, mig, value = 0, 0, 0
@@ -106,14 +109,14 @@ class Algorithm_tetris(Algorithm):
                 
                 if cost > cost_min:
                     break
-            
+            print("z=%d cost计算消耗了 %.2f s, current cost = %.3f " % (z, time()-s, cost))
             if cost < cost_min:
                 cost_min = cost
                 min_z, balf, migf, valuef = z, bal, mig, value
             cluster.backZero(z, now, W)
-
+        print('开始计算motivation')
         motivation = cluster.freshStructPmVm(candidate_copy, min_z, now, W, b)
-        
+        print(f'motivation is {motivation}')
         if len(motivation) > 0:
             motivationFile = self.motivationFile
             

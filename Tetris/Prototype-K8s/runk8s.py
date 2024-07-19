@@ -3,7 +3,8 @@ import os
 import numpy as np
 import pandas as pd
 from io import StringIO, BytesIO
-from real.sxyAlgo.algorithm import Scheduler
+# from real.sxyAlgo.algorithm import Scheduler
+from tetrisAlgo.algorithm import Scheduler
 from time import sleep,time
 from sys import exit
 import csv
@@ -35,15 +36,18 @@ class ScheduleSys:
         while flag:
             print(f"################################# {t}th loading #############################")
             
+            # 获取容器在当前时间点的CPU和内存使用情况
             for i in range(podnum):
                 podname = "tc"+str(i)
                 self.getCpuMemNow(podname,t)
             
+            # 将容器与节点进行关联
             self.NodeToPod(t)
             # print(f"pods is {self.pods}\nfirst nodes= \n{self.nodes}")
             # assert 1==0
             # run8s.log
             
+            # 创建一个CSV文件，写入表头信息
             if t==0:
                 Filename = './metric/sandpiper.csv' if algo == "sandpiper" else './metric/sxy.csv'
                 
@@ -51,6 +55,7 @@ class ScheduleSys:
                     writer = csv.writer(f)
                     writer.writerow(["value","eval_bal","eval_mig"])
             
+            # 根据algoName的取值选择相应的调度算法
             if self.algoName == "sandpiper":
                 newnodes = self.algorithm(self.nodes,self.cpudict,self.memdict,self.algoName) #调度算法后生成新的node pod分配方案
             
@@ -68,6 +73,7 @@ class ScheduleSys:
                 print("choose the scheduling algorithm --algo=sandpiper or --algo=sxy\n done")
                 exit()
             
+            # 新方案与原方案一致
             if  self.nodes == newnodes or eq(self.nodes,newnodes):
                 
                 sleep(5)
@@ -92,7 +98,7 @@ class ScheduleSys:
                 print(f"at {t} Done")
                 break
     
-    
+    # 将容器与节点进行关联
     def NodeToPod(self,t):
         algoName = self.algoName
         
@@ -155,7 +161,7 @@ class ScheduleSys:
             # if t==0:
             nodes[nodename].add(podname)
                 
-
+    # 获取指定podname的CPU和内存使用情况，并将获取到的数据存储到字典中
     def getCpuMemNow(self,podname,t=0):
         """resource comsumption"""
         cpudict  = self.cpudict
@@ -170,11 +176,13 @@ class ScheduleSys:
         cpu,mem = '',''
         looptimes = 0
         
+        # 不断尝试获取podname的CPU和内存使用情况，直到成功获取到数据为止
         while cpu=='' or mem=='':
             print(f"podname={podname} In getCpuMemNow spending cpu={cpu},mem={mem}")
             sleep(3)
             looptimes += 1
             
+            # 超过5次仍然无法获取到数据，则打印错误信息，并终止程序的执行
             if looptimes > 5:
                 with os.popen("kubectl top pod | grep '"+podname+" '") as p:
                     print("wrong",p.read())
@@ -187,7 +195,8 @@ class ScheduleSys:
             with os.popen("kubectl top pod | grep '"+podname+" ' | awk '{print $3}' | tr -cd '[0-9]'") as cmdmem :
                 
                 mem = cmdmem.read()
-        
+
+        # 获取到了cpu和men值
         print(f"podname={podname} cpu: {cpu} mem:{mem}")
         intcpu = int(cpu)
         intmem = int(mem)
@@ -222,6 +231,7 @@ class ScheduleSys:
         nodes = self.nodes
         p =1
         
+        # 一个node中的所有要迁移的pod
         for node_name,migrated_pod_list in nodes.items():
             for pod_name in migrated_pod_list:
                 if p==1:
@@ -230,6 +240,11 @@ class ScheduleSys:
                     # po = os.popen("kubectl delete pod "+pod_name+"& ""sed -i '4c\  name: "+pod_name+"' /root/tomcat/pod.yaml"\
                     #     "& sed -i '8c\  nodeName: "+node_name+"' /root/tomcat/pod.yaml"\
                     #         "& kubectl create -f /root/tomcat/pod.yaml")
+
+                    # Checkpoint the pod using CRIU，内存检查点
+                    with os.popen(f"criu dump -t $(pidof {pod_name}) -D /checkpoint/{pod_name} --leave-running") as po:
+                        print("Checkpointing pod:", po.read())
+
                     with os.popen("kubectl delete pod "+pod_name) as po:
                         print(1,po.read())
                         
@@ -245,6 +260,10 @@ class ScheduleSys:
                         print(4,po.read())
                         #sleep(0.1)
                     
+                    # Restore the pod using CRIU，内存恢复
+                    with os.popen(f"criu restore -D /checkpoint/{pod_name} --shell-job") as po:
+                        print("Restoring pod:", po.read())
+                    
                 if po != None:
                     p = 1
         
@@ -253,13 +272,14 @@ class ScheduleSys:
                 # os.popen("kubectl create -f /root/tomcat/pod.yaml")
         #sleep(5)
     
-    
+    # 执行kubectl get pod -o wide命令来获取Pod的详细信息，并打印输出结果和self.cpudict的值。然后，它返回布尔值True，表示函数执行成功
     def checkNodeAndPodCmd(self):
 
-        cmd = os.popen("kubectl get pod -o wide")
+        cmd = os.popen("kubectl get pod -o wide") # 打开一个管道来执行命令并返回一个文件对象
         
         print(f"\nat time {time()-self.startTime}: \n{cmd.read()} \n")
         print(self.cpudict)
+        cmd.close();
         return True
     
     

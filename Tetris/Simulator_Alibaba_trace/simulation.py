@@ -9,12 +9,12 @@ import profile
 
 
 class Simulation(object):
-    def __init__(self, configs,algorithm,metricFile,movtivationFile,args=None):
+    def __init__(self, configs,algorithm,metricFile,motivationFile,args=None):
         instance_configs,machine_configs,mac_ids,inc_ids= configs
         self.sand = False
         
         if args is not None:
-            self.drl = args.drl
+            # self.drl = args.drl
             self.sand = args.sandpiper
         self.env = simpy.Environment()
         self.cluster = Cluster()
@@ -22,8 +22,8 @@ class Simulation(object):
         self.cluster.configure_machines(machine_configs)
         self.cluster.configure_instances(instance_configs)
         
-        self.scheduler = Scheduler(self.env,algorithm,self.sand,metricFile,movtivationFile)
-
+        self.scheduler = Scheduler(self.env,algorithm,self.sand,metricFile,motivationFile)
+        # self.scheduler = Scheduler(self.env,algorithm,metricFile,motivationFile)
         self.scheduler.attach(self)
 
     

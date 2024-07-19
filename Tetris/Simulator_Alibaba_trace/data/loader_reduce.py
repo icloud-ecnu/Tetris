@@ -19,7 +19,7 @@ def read_iterator(filepath):
     # n = int(800)
     
     for idx, file in enumerate(files):
-        filename = os.path.join(filepath, file)
+        filename = os.path.join(filepath, file) # 
         ids = int(filename[filename.rfind('_')+1:filename.rfind('.')])
         
         df = pd.read_csv(filename,header=None)
@@ -27,7 +27,7 @@ def read_iterator(filepath):
         # df = pd.read_csv(f,header=None)
         # df.rename(columns={0:'cpu' ,1:'mem'},inplace=True)
         cpu = df[0].values.tolist()
-        mem = df[1].values.tolist()
+        mem = df[1].values.tolist() # 这里报错，没有df[1]
         cpulist[ids] = cpu
         memlist[ids] = mem
         # print(idx,',',filename,', cpu list: ',len(cpulist))
@@ -35,15 +35,17 @@ def read_iterator(filepath):
 
 
 # @profile
+# 根据给定的虚拟机CPU请求文件和节点数、容器数的列表，加载实例配置信息，并将结果以列表的形式返回
+# test_array [[节点数, 容器数], ...]
 def InstanceConfigLoader(vm_cpu_request_file,test_array):
     res = []
-    instance_configs = {}
-    inc_mac_id_file = '/hdd/lsh/Scheduler/data/container_machine_id.csv'
-    vm_mac = {}
-    machine_configs = {}
+    instance_configs = {} # 存储实例配置信息
+    inc_mac_id_file = 'container_machine_id.csv' # 容器与机器对应关系的文件路径
+    vm_mac = {} # 这里没用到这个变量
+    machine_configs = {} # 存储机器配置信息 【machine_id : MachineConfig】
     # 读取所有vm的资源
     vm_cpu_requests, vm_mem_requests = read_iterator(vm_cpu_request_file)
-    mac = {}
+    mac = {} # {machine_id : [inc_id, ...]}, 表示机器中有哪些容器 
     # 读取第一时刻vm安置的关系
     df = pd.read_csv(inc_mac_id_file, header=None)
     # 存储 container【新id ： 旧id】
@@ -70,33 +72,36 @@ def InstanceConfigLoader(vm_cpu_request_file,test_array):
         else:
             mac[mac_id] = [inc_id]
 
-    mac = {k: v for k, v in sorted(mac.items(), key=lambda x: x[0])}
+    mac = {k: v for k, v in sorted(mac.items(), key=lambda x: x[0])} # 按照键machine id进行排序
+    # print(mac)
     # mac_new machine id 连续
     mac_new = {}
     idx = 0
-    
+    # 将mac重新整合到mac_new中
     for k, v in mac.items():
         # print(f'idx={idx} newmac_id={k}')
         mac_new[idx] = v
-        mac_ids[idx] = k
+        mac_ids[idx] = k # 存储machine的【新id：旧id】
         idx = idx+1
     # mac = mac_new
-    machine_half = {}
+    machine_half = {} # 存储一半的机器配置
     
     import random
     
-    fileName = "/hdd/lsh/Scheduler/data/mac_keys/3989.csv"
+    fileName = "3989.csv"
     dataframe= pd.read_csv(fileName)
     
+    # 根据test_array中的每个元组，生成机器和实例的配置信息
     for tup in test_array:
         nodeNum = tup[0]
         containerNum = tup[1]
-        mac_nodes = dataframe["macid"].values.tolist()[:nodeNum]
-        mac = { k:mac_new[k]for k in  mac_nodes }
-        print(len(mac))
+        mac_nodes = dataframe["macid"].values.tolist()[:nodeNum] # 读取前nodeNum个macid
+        mac = { k:mac_new[k]for k in  mac_nodes } # 【macid：[inc_id, ...]】
+        print(f'len of mac is len(mac)')
+        print(mac)
         # summac = sum([ len(mac[mac_nodes[i]]) for i in range(nodeNum)])
-        summac = sum([ len(v) for v in mac.values()])
-        print(nodeNum,summac,containerNum,len(mac))
+        summac = sum([ len(v) for v in mac.values()]) # 所有机器上的容器数量
+        print(nodeNum,containerNum,summac)
         
         for machine_id, data in mac.items():
             # 生成machine；machine_configs [mac_id:machine实体类]
@@ -108,6 +113,7 @@ def InstanceConfigLoader(vm_cpu_request_file,test_array):
                     machine_half[machine_id] = [instanceid]
                 else:
                     machine_half[machine_id].append(instanceid)
+                # 根据旧容器id，获取对应的CPU请求曲线、内存请求曲线
                 cpu_curve = vm_cpu_requests[inc_ids[instanceid]]
                 # test_csv(str(inc_ids[instanceid]),cpu_curve)
                 memory_curve = vm_mem_requests[inc_ids[instanceid]]
@@ -115,7 +121,7 @@ def InstanceConfigLoader(vm_cpu_request_file,test_array):
                 instance_config = InstanceConfig(
                     machine_id, instanceid, cpu_curve[0], memory_curve[0], disk_curve, cpu_curve, memory_curve)
                 instance_configs[instanceid] = instance_config
-
+        print(f'len of instance_configs is {len(instance_configs)}')
         i = 0
         j =0
         new_machins  = {}
@@ -135,7 +141,8 @@ def InstanceConfigLoader(vm_cpu_request_file,test_array):
                 i+=1
         print("half_data instance number",len(new_instances),"half machine number ",len(new_machins))
         res.append([new_instances, new_machins, mac_ids,inc_ids])
-    
+
+    print(f'len of res is {len(res)}')   
     return res
 
 

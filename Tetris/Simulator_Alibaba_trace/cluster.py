@@ -185,7 +185,7 @@ class Cluster(object):
         self.cpusum = {k:v for k,v in cpusum_copy.items()}
         self.memsum = {k:v for k,v in memsum_copy.items()}
         
-        # print("modifyPmCopy:",self.modifyPmCopy)
+        print(f"len of modifyPmCopy: {len(self.modifyPmCopy)}")
         macids = set()
         
         if len(self.modifyPmCopy) > 0:
@@ -207,68 +207,146 @@ class Cluster(object):
         self.modifyPmCopy = []
         
     
-    def freshStructPmVm(self,candidate_copy,z,clock,w,b):
-        if z==-1:
+    # def freshStructPmVm(self,candidate_copy,z,clock,w,b):
+    #     if z==-1:
+    #         return {}
+        
+    #     candidate = candidate_copy[z]
+        
+    #     if len(candidate) == 0:
+    #         print("no migration")
+    #         return {}
+        
+    #     machines = self.machines
+    #     instances = self.instances
+    #     outpm = {v[0][0]:0 for k,v in candidate.items() }
+    #     outpm = {macid:set([v for v in machines[macid].instances.keys()])for macid in outpm.keys()}
+    #     inpm = {v[0][1]:0 for k,v in candidate.items() }
+    #     inpm = {macid:set([v for v in machines[macid].instances.keys()])for macid in inpm.keys()}
+    #     print(f'outpm is {outpm}')
+    #     print(f'inpm is {inpm}')
+    #     motivation = {}
+    #     moti_len = 2
+        
+    #     for vmid,v in candidate.items():
+    #         if (len(v)>1):
+    #             print(v)
+    #             assert 1==0
+            
+    #         s,destination = v[0]
+    #         before_value = []
+    #         after_value = []
+            
+    #         # before
+    #         try:
+    #             for t in range(moti_len):
+    #                 beforePmOutCost = machines[s].afterOneContainerMigration(clock+t,w,b)
+    #                 beforePmInCost = machines[destination].afterOneContainerMigration(clock+t,w,b)
+    #                 before_value.append(beforePmOutCost+beforePmInCost)
+    #                 print(f"计算 before_value 耗时 {time() - start_time:.2f} 秒")
+    #         except Exception as e:
+    #             print(f"计算 before_value 出错: {e}")
+    #         machines[s].pop(vmid)
+    #         machines[destination].push(instances[vmid])
+            
+    #         try:
+    #             for t in range(moti_len):
+    #                 afterPmOutCost = machines[s].afterOneContainerMigration(clock+t,w,b)
+    #                 afterPmInCost = machines[destination].afterOneContainerMigration(clock+t,w,b)
+    #                 after_value.append(afterPmOutCost+afterPmInCost)
+    #         except:
+    #             print()
+            
+    #         motivation[vmid] = [s,destination,before_value,after_value]  
+        
+    #     afteroutpm = {macid:set([v for v in machines[macid].instances.keys()])for macid in outpm.keys()}
+    #     afterinpm = {macid:set([v for v in machines[macid].instances.keys()])for macid in inpm.keys()}
+        
+    #     diffout = {macid:v.difference(afteroutpm[macid])for macid,v in outpm.items()}
+    #     diffin = {macid:afterinpm[macid].difference(v)for macid,v in inpm.items()}
+        
+    #     violations = self.isAllUnderLoad(clock)
+        
+    #     self.driftPm[clock]={"outpm":outpm,"afteroutpm":afteroutpm,"inpm":inpm,"afterinpm":afterinpm,"diffout":diffout,"diffin":diffin,"violations":violations}
+    #     return motivation
+    
+    def freshStructPmVm(self, candidate_copy, z, clock, w, b):
+        if z == -1:
             return {}
-        
+
         candidate = candidate_copy[z]
-        
         if len(candidate) == 0:
             print("no migration")
             return {}
-        
+
+        from time import time
+
         machines = self.machines
         instances = self.instances
-        outpm = {v[0][0]:0 for k,v in candidate.items() }
-        outpm = {macid:set([v for v in machines[macid].instances.keys()])for macid in outpm.keys()}
-        inpm = {v[0][1]:0 for k,v in candidate.items() }
-        inpm = {macid:set([v for v in machines[macid].instances.keys()])for macid in inpm.keys()}
-        
+
+        outpm = {v[0][0]: 0 for k, v in candidate.items()}
+        outpm = {macid: set([v for v in machines[macid].instances.keys()]) for macid in outpm.keys()}
+        inpm = {v[0][1]: 0 for k, v in candidate.items()}
+        inpm = {macid: set([v for v in machines[macid].instances.keys()]) for macid in inpm.keys()}
+        print(f'outpm is {outpm}')
+        print(f'inpm is {inpm}')
+
         motivation = {}
         moti_len = 2
-        
-        for vmid,v in candidate.items():
-            if (len(v)>1):
+
+        for vmid, v in candidate.items():
+            if len(v) > 1:
                 print(v)
-                assert 1==0
-            
-            s,destination = v[0]
+                assert 1 == 0
+
+            s, destination = v[0]
             before_value = []
             after_value = []
-            
+
             # before
             try:
+                start_time = time()
                 for t in range(moti_len):
-                    beforePmOutCost = machines[s].afterOneContainerMigration(clock+t,w,b)
-                    beforePmInCost = machines[destination].afterOneContainerMigration(clock+t,w,b)
-                    before_value.append(beforePmOutCost+beforePmInCost)
-            except:
-                print()
+                    beforePmOutCost = machines[s].afterOneContainerMigration(clock + t, w, b)
+                    beforePmInCost = machines[destination].afterOneContainerMigration(clock + t, w, b)
+                    before_value.append(beforePmOutCost + beforePmInCost)
+                print(f"计算 before_value 耗时 {time() - start_time:.2f} 秒")
+            except Exception as e:
+                print(f"计算 before_value 出错: {e}")
+
+            start_time = time()
             machines[s].pop(vmid)
             machines[destination].push(instances[vmid])
-            
+            print(f"迁移容器 {vmid} 耗时 {time() - start_time:.2f} 秒")
+
             try:
+                start_time = time()
                 for t in range(moti_len):
-                    afterPmOutCost = machines[s].afterOneContainerMigration(clock+t,w,b)
-                    afterPmInCost = machines[destination].afterOneContainerMigration(clock+t,w,b)
-                    after_value.append(afterPmOutCost+afterPmInCost)
-            except:
-                print()
-            
-            motivation[vmid] = [s,destination,before_value,after_value]  
-        
-        afteroutpm = {macid:set([v for v in machines[macid].instances.keys()])for macid in outpm.keys()}
-        afterinpm = {macid:set([v for v in machines[macid].instances.keys()])for macid in inpm.keys()}
-        
-        diffout = {macid:v.difference(afteroutpm[macid])for macid,v in outpm.items()}
-        diffin = {macid:afterinpm[macid].difference(v)for macid,v in inpm.items()}
-        
+                    afterPmOutCost = machines[s].afterOneContainerMigration(clock + t, w, b)
+                    afterPmInCost = machines[destination].afterOneContainerMigration(clock + t, w, b)
+                    after_value.append(afterPmOutCost + afterPmInCost)
+                print(f"计算 after_value 耗时 {time() - start_time:.2f} 秒")
+            except Exception as e:
+                print(f"计算 after_value 出错: {e}")
+
+            motivation[vmid] = [s, destination, before_value, after_value]
+
+        afteroutpm = {macid: set([v for v in machines[macid].instances.keys()]) for macid in outpm.keys()}
+        afterinpm = {macid: set([v for v in machines[macid].instances.keys()]) for macid in inpm.keys()}
+
+        diffout = {macid: v.difference(afteroutpm[macid]) for macid, v in outpm.items()}
+        diffin = {macid: afterinpm[macid].difference(v) for macid, v in inpm.items()}
+
         violations = self.isAllUnderLoad(clock)
-        
-        self.driftPm[clock]={"outpm":outpm,"afteroutpm":afteroutpm,"inpm":inpm,"afterinpm":afterinpm,"diffout":diffout,"diffin":diffin,"violations":violations}
+
+        self.driftPm[clock] = {
+            "outpm": outpm, "afteroutpm": afteroutpm, "inpm": inpm,
+            "afterinpm": afterinpm, "diffout": diffout, "diffin": diffin,
+            "violations": violations
+        }
+
         return motivation
-    
-    
+
     def isAllUnderLoad(self,clock,sand=False):
         machines = self.machines
         cpusum = self.cpusum

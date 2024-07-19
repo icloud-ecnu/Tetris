@@ -4,7 +4,8 @@ import os
 import numpy as np
 import pandas as pd
 from io import StringIO, BytesIO
-from real.sxyAlgo.algorithm import Scheduler
+# from real.sxyAlgo.algorithm import Scheduler
+from tetrisAlgo.algorithm import Scheduler
 from time import sleep,time
 from sys import exit
 import csv
@@ -169,6 +170,10 @@ class ScheduleSys:
                     # po = os.popen("kubectl delete pod "+pod_name+"& ""sed -i '4c\  name: "+pod_name+"' /root/tomcat/pod.yaml"\
                     #     "& sed -i '8c\  nodeName: "+node_name+"' /root/tomcat/pod.yaml"\
                     #         "& kubectl create -f /root/tomcat/pod.yaml") # delete the pod_name
+                    # Checkpoint the pod using CRIU，内存检查点
+                    with os.popen(f"criu dump -t $(pidof {pod_name}) -D /checkpoint/{pod_name} --leave-running") as po:
+                        print("Checkpointing pod:", po.read())
+
                     with os.popen("kubectl delete pod "+pod_name) as po:
                         print(f"delete {pod_name} from {self.old_pod_name[pod_name]} ",po.read())
                         
@@ -187,6 +192,10 @@ class ScheduleSys:
                         print(f"create /root/tomcat/pod.yaml for {node_name}_{pod_name}",po.read())
                         
                         sleep(0.1)
+
+                    # Restore the pod using CRIU，内存恢复
+                    with os.popen(f"criu restore -D /checkpoint/{pod_name} --shell-job") as po:
+                        print("Restoring pod:", po.read())
                     
                 if po !=None:
                     p = 1

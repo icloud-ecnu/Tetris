@@ -10,6 +10,7 @@ class InstanceConfig(object):
         self.disk = disk
         self.cpu_curve = cpu_curve
         self.memory_curve = memory_curve
+
         
 
 class Instance(object):
@@ -24,7 +25,9 @@ class Instance(object):
         self.predicts = {}
         self.machine = None
         self.lastmacineId = -1
-    
+        self.predictCpuList = []  # 初始化predictCpuList
+        self.predictMemList = []  # 初始化predictMemList
+
     def attach(self, machine):
         self.machine = machine
     
@@ -49,7 +52,7 @@ class Instance(object):
         self.predictMemList.append(model.predict(n_periods=w).tolist())
         
         predict_cpu = self.cpulist + self.predictCpuList[-1]
-        model = model.fit(self.memlist)
+        # model = model.fit(self.memlist) # --------------- occur error
         predict_mem = self.memlist + self.predictMemList[-1]
         
         self.cpu = predict_cpu[0]
