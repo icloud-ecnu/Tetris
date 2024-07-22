@@ -80,7 +80,7 @@ $ pip install -r requirements.txt
 
 
 ## Run the Trace-Driven Simulator
-### Download the dataset from ***Alibaba cluster trace v2018***
+### Download the dataset from ***Alibaba cluster trace v2018***. We have also support simulations with ***Alibaba cluster trace v2022***
 Run the script to download the processed dataset:
 1. If you want to get the data in 1 hour,
     ```
