@@ -1,5 +1,5 @@
 
-from sxyAlgo.container import Container
+from tetrisAlgo.container import Container
 import numpy as np
 
 
