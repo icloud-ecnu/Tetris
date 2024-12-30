@@ -1,8 +1,8 @@
 
 import numpy as np
-from sandpiper import Sandpiper_algo
+from tetrisAlgo.sandpiper import Sandpiper_algo
 from abc import ABC, abstractmethod
-from sxyAlgo.Algorithm_tetris import Algorithm_tetris
+from tetrisAlgo.Algorithm_tetris import Algorithm_tetris
 from utl import CostOfLoadBalance, CostOfMigration
 import csv
 
