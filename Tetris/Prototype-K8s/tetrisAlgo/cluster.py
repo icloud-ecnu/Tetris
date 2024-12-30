@@ -3,7 +3,7 @@ import time
 from typing import Dict
 import numpy as np
 
-from sxyAlgo.container import Container
+from tetrisAlgo.container import Container
 
 
 
